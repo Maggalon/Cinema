@@ -1,13 +1,3 @@
-The Shawshank Redemption
-1994
-USA
-drama
-9.1
-The Green Mile
-1999
-USA
-fantasy, drama
-9.1
 Forrest Gump
 1994
 USA
@@ -18,13 +8,23 @@ The Intouchables
 France
 comedy, drama
 8.8
-Inception
-2010
-USA, UK
-action, sci-fi
-8.7
 WALL-E
 2008
 USA
 family, adventure
 8.3
+Only "Old Men" Are Going Into Battle
+1973
+USSR
+war, drama
+8.7
+The Lord of the Rings: The Fellowship of the Ring
+2001
+New Zealand, USA
+fantasy, adventure
+8.6
+The Pianist
+2002
+Poland, France
+drama, war
+8.5

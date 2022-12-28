@@ -56,6 +56,17 @@ void getFilePath(User user, char *url) {
     //return url;
 }
 
+int checkName(char *name1, char *name2) {
+    int i = 0;
+    while (name1[i] != '\0' && name2[i] != '\0') {
+        if (name1[i] != name2[i]) {
+            return 0;
+        }
+        i++;
+    }
+    return 1;
+}
+
 //---Работа со списком пользователей-------------
 void addUser(User_list **head, User user) {
     if (*head == NULL) {
@@ -147,8 +158,20 @@ void addFilm(Favorites **head, Film film) {
     }
 }
 
-void deleteFilm() {
-
+void deleteFilm(Favorites **head, char *name) {
+    if (checkName((*head)->film.name, name)) {
+        Favorites *next = (*head)->next;
+        free(*head);
+        *head = next;
+        return;
+    }
+    Favorites *cur = *head;
+    while (!checkName(cur->next->film.name, name)) {
+        cur = cur->next;
+    }
+    Favorites *tmp = cur->next->next;
+    free(cur->next);
+    cur->next = tmp;
 }
 
 void getFavorites(Favorites **head, User user) {
@@ -171,12 +194,15 @@ void getFavorites(Favorites **head, User user) {
     remove(url);
 }
 
-void printFavorites(Favorites *head) {
+int isFilmInList(Favorites *head, char *name) {
     Favorites *cur = head;
     while (cur != NULL) {
-        printf("%s%s%s%s%s\n", cur->film.name, cur->film.year, cur->film.country, cur->film.genres, cur->film.rating);
+        if (checkName(cur->film.name, name)) {
+            return 1;
+        }
         cur = cur->next;
     }
+    return 0;
 }
 
 void pushFavorites(Favorites *head, User user) {
@@ -490,7 +516,12 @@ int main() {
                 if (option == 'e') {
                     break;
                 } else if (option == 'A'){
+                    if (isFilmInList(favorites, lst->film.name)) {
+                        printf("This film is already in your favorites.\n");
+                        continue;
+                    }
                     addFilm(&favorites, lst->film);
+                    addToFilmList(favlst, lst->film);
                     User_list *cur = head;
                     while (cur != NULL) {
                         int i = 0, ok = 1;
@@ -508,6 +539,10 @@ int main() {
                 }
             }
         } else if (option == 'A') {
+            if (isFilmInList(favorites, lst->film.name)) {
+                printf("This film is already in your favorites.\n");
+                continue;
+            }
             addFilm(&favorites, lst->film);
             addToFilmList(favlst, lst->film);
             User_list *cur = head;
@@ -529,13 +564,13 @@ int main() {
                 printFilm(favlst->prev, 0);
                 printFilm(favlst, 0);
                 printFilm(favlst->next, 0);
-                printf("a/d to control\nD to see detailed info\ne to exit:");
+                printf("a/d to control\nI to see detailed info\nD to delete film from your favorites\ne to exit:");
                 scanf("\n%c", &option);
                 if (option == 'a') {
                     favlst = favlst->prev;
                 } else if (option == 'd') {
                     favlst = favlst->next;
-                } else if (option == 'D') {
+                } else if (option == 'I') {
                     printFilm(favlst, 1);
                     while (1) {
                         printf("d to delete film from your favorites\ne to get back to the list:");
@@ -544,7 +579,8 @@ int main() {
                         if (option == 'e') {
                             break;
                         } else if (option == 'd'){
-                            deleteFromFilmList(favlst);
+                            deleteFilm(&favorites, favlst->film.name);
+                            favlst = deleteFromFilmList(favlst);
                             User_list *cur = head;
                             while (cur != NULL) {
                                 int i = 0, ok = 1;
@@ -561,6 +597,23 @@ int main() {
                             cur->user.favorites_list_size--;
                         }
                     }
+                } else if (option == 'D') {
+                    deleteFilm(&favorites, favlst->film.name);
+                    favlst = deleteFromFilmList(favlst);
+                    User_list *cur = head;
+                    while (cur != NULL) {
+                        int i = 0, ok = 1;
+                        while (cur->user.login[i] != '\0') {
+                            if (cur->user.login[i] != user.login[i]) {
+                                ok = 0;
+                                break;
+                            }
+                            i++;
+                        }
+                        if (ok) break;
+                        cur = cur->next;
+                    }
+                    cur->user.favorites_list_size--;
                 } else if (option == 'e') {
                     break;
                 }
