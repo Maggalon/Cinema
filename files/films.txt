@@ -1,4 +1,3 @@
-30
 The Shawshank Redemption
 1994
 USA
@@ -126,7 +125,7 @@ crime, drama
 8.5
 Catch Me If You Can
 2002
-USA, Canada
+USA,Canada
 drama, crime
 8.5
 The Pianist
@@ -149,3 +148,8 @@ WALL-E
 USA
 family, adventure
 8.3
+Knives Out
+2019
+USA
+crime, comedy
+8.1
