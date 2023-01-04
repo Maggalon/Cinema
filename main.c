@@ -393,10 +393,6 @@ void printFilm(FilmList *cur, int n) {
     }
 }
 
-void printFilmCards(FilmList *cur, int n) {
-
-}
-
 int isFilmValid(FilmList *lst, char *name) {
     FilmList *cur = lst;
     do {
