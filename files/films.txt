@@ -1,38 +1,3 @@
-Leon
-1994
-France, USA
-action, drama
-8.7
-The Lion King
-1994
-USA
-musical, family
-8.8
-Fight Club
-1999
-USA
-thriller, drama
-8.6
-Ivan Vasilievich: Back to the Future
-1973
-USSR
-comedy, sci-fi
-8.8
-Life Is Beautiful
-1997
-Italy
-war, drama
-8.6
-Knockin' on Heaven's Door
-1997
-Germany
-drama, comedy
-8.6
-The Godfather
-1972
-USA
-crime, drama
-8.7
 Pulp Fiction
 1994
 USA
@@ -118,11 +83,6 @@ WALL-E
 USA
 family, adventure
 8.3
-Knives Out
-2019
-USA
-crime, comedy
-8.1
 The Shawshank Redemption
 1994
 USA
@@ -152,4 +112,39 @@ Inception
 2010
 USA, UK
 action, sci-fi
+8.7
+Leon
+1994
+France, USA
+action, drama
+8.7
+The Lion King
+1994
+USA
+musical, family
+8.8
+Fight Club
+1999
+USA
+thriller, drama
+8.6
+Ivan Vasilievich: Back to the Future
+1973
+USSR
+comedy, sci-fi
+8.8
+Life Is Beautiful
+1997
+Italy
+war, drama
+8.6
+Knockin' on Heaven's Door
+1997
+Germany
+drama, comedy
+8.6
+The Godfather
+1972
+USA
+crime, drama
 8.7

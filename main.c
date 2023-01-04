@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 typedef struct {
     char name[55];
@@ -392,12 +393,8 @@ void printFilm(FilmList *cur, int n) {
     }
 }
 
-void printFilmList(FilmList *lst) {
-    FilmList *cur = lst;
-    do {
-        printFilm(cur, 0);
-        cur = cur->next;
-    } while (cur != lst);
+void printFilmCards(FilmList *cur, int n) {
+
 }
 
 int isFilmValid(FilmList *lst, char *name) {
@@ -469,14 +466,6 @@ void pushFilmList(FilmList *lst, User user, char type) {
         getFilePath(user, url);
         f = fopen(url, "w");
     } else {
-        char size[2];
-        f = fopen("..\\files\\films_list_size.txt", "r");
-        fgets(size, 4, f);
-        int len = strtol(size, (char*) NULL, 10);
-        fclose(f);
-        f = fopen("..\\files\\films_list_size.txt", "w");
-        fprintf(f, "%d", len);
-        fclose(f);
         f = fopen("..\\files\\films.txt", "w");
     }
     do {
@@ -548,6 +537,7 @@ int main() {
 
     //char option;
     while (1) {
+        system("cls");
         printFilm(lst->prev, 0);
         printFilm(lst, 0);
         printFilm(lst->next, 0);
@@ -563,6 +553,7 @@ int main() {
         } else if (option == 'd') {
             lst = lst->next;
         } else if (option == 'D') {
+            system("cls");
             printFilm(lst, 1);
             while (1) {
                 printf("A to add film to your favorites\n");
@@ -576,11 +567,18 @@ int main() {
                     break;
                 } else if (option == 'A'){
                     if (isFilmInList(favorites, lst->film.name)) {
+                        system("cls");
                         printf("This film is already in your favorites.\n");
+                        sleep(2);
                         continue;
                     }
                     addFilm(&favorites, lst->film);
-                    addToFilmList(favlst, lst->film);
+                    if (user.favorites_list_size == 0) {
+                        favlst = init(lst->film);
+                    } else {
+                        addToFilmList(favlst, lst->film);
+                    }
+                    user.favorites_list_size++;
                     User_list *cur = head;
                     while (cur != NULL) {
                         int i = 0, ok = 1;
@@ -595,15 +593,77 @@ int main() {
                         cur = cur->next;
                     }
                     cur->user.favorites_list_size++;
+                } else if (option == '&') {
+
+                    FilmList *delP = favlst;
+                    do {
+                        if (checkName(delP->film.name, lst->film.name)) {
+                            favlst = deleteFromFilmList(delP);
+                            break;
+                        }
+                        delP = delP->next;
+                    } while (delP != favlst);
+
+                    Favorites *cur = favorites;
+                    while (cur != NULL) {
+                        if (checkName(cur->film.name, lst->film.name)) {
+                            deleteFilm(&favorites, cur->film.name);
+                            user.favorites_list_size--;
+                            User_list *cur_user = head;
+                            while (cur_user != NULL) {
+                                if (checkName(cur_user->user.login, user.login)) {
+                                    cur_user->user.favorites_list_size--;
+                                }
+                                cur_user = cur_user->next;
+                            }
+                            break;
+                        }
+                        cur = cur->next;
+                    }
+                    //user.favorites_list_size--;
+
+                    User_list *cur_user = head;
+                    while (cur_user != NULL) {
+                        if (!checkName(cur_user->user.login, user.login)) {
+                            FilmList *favP = getFilmList('f', cur_user->user);
+                            FilmList *delfavP = favP;
+                            do {
+                                if (checkName(delfavP->film.name, lst->film.name)) {
+                                    favP = deleteFromFilmList(delfavP);
+                                    pushFilmList(favP, cur_user->user, 'f');
+                                    cur_user->user.favorites_list_size--;
+                                }
+                                delfavP = delfavP->next;
+                            } while (delfavP != favP);
+                        }
+                        cur_user = cur_user->next;
+                    }
+
+                    lst = deleteFromFilmList(lst);
+                    char size[2];
+                    FILE *f = fopen("..\\files\\films_list_size.txt", "r");
+                    fgets(size, 4, f);
+                    int len = strtol(size, (char*) NULL, 10) - 1;
+                    fclose(f);
+                    f = fopen("..\\files\\films_list_size.txt", "w");
+                    fprintf(f, "%d", len);
+                    fclose(f);
                 }
             }
         } else if (option == 'A') {
             if (isFilmInList(favorites, lst->film.name)) {
+                system("cls");
                 printf("This film is already in your favorites.\n");
+                sleep(2);
                 continue;
             }
             addFilm(&favorites, lst->film);
-            addToFilmList(favlst, lst->film);
+            if (user.favorites_list_size == 0) {
+                favlst = init(lst->film);
+            } else {
+                addToFilmList(favlst, lst->film);
+            }
+            user.favorites_list_size++;
             User_list *cur = head;
             while (cur != NULL) {
                 int i = 0, ok = 1;
@@ -619,66 +679,87 @@ int main() {
             }
             cur->user.favorites_list_size++;
         } else if (option == 'F') {
-            while (1) {
-                printFilm(favlst->prev, 0);
-                printFilm(favlst, 0);
-                printFilm(favlst->next, 0);
-                printf("a/d to control\nI to see detailed info\nD to delete film from your favorites\ne to exit:");
-                scanf("\n%c", &option);
-                if (option == 'a') {
-                    favlst = favlst->prev;
-                } else if (option == 'd') {
-                    favlst = favlst->next;
-                } else if (option == 'I') {
-                    printFilm(favlst, 1);
-                    while (1) {
-                        printf("d to delete film from your favorites\ne to get back to the list:");
-                        scanf("\n%c", &option);
-                        //system("cls");
-                        if (option == 'e') {
-                            break;
-                        } else if (option == 'd'){
-                            deleteFilm(&favorites, favlst->film.name);
-                            favlst = deleteFromFilmList(favlst);
-                            User_list *cur = head;
-                            while (cur != NULL) {
-                                int i = 0, ok = 1;
-                                while (cur->user.login[i] != '\0') {
-                                    if (cur->user.login[i] != user.login[i]) {
-                                        ok = 0;
-                                        break;
-                                    }
-                                    i++;
-                                }
-                                if (ok) break;
-                                cur = cur->next;
-                            }
-                            cur->user.favorites_list_size--;
-                        }
+            if (user.favorites_list_size == 0) {
+                printf("You have no favorites yet. Please add some.\n");
+                sleep(2);
+            } else {
+                while (1) {
+                    system("cls");
+                    if (user.favorites_list_size == 1) {
+                        printFilm(favlst, 0);
+                    } else {
+                        printFilm(favlst->prev, 0);
+                        printFilm(favlst, 0);
+                        printFilm(favlst->next, 0);
                     }
-                } else if (option == 'D') {
-                    deleteFilm(&favorites, favlst->film.name);
-                    favlst = deleteFromFilmList(favlst);
-                    User_list *cur = head;
-                    while (cur != NULL) {
-                        int i = 0, ok = 1;
-                        while (cur->user.login[i] != '\0') {
-                            if (cur->user.login[i] != user.login[i]) {
-                                ok = 0;
+                    printf("a/d to control\nI to see detailed info\nD to delete film from your favorites\ne to exit:");
+                    scanf("\n%c", &option);
+                    if (option == 'a') {
+                        favlst = favlst->prev;
+                    } else if (option == 'd') {
+                        favlst = favlst->next;
+                    } else if (option == 'I') {
+                        printFilm(favlst, 1);
+                        while (1) {
+                            printf("d to delete film from your favorites\ne to get back to the list:");
+                            scanf("\n%c", &option);
+                            //system("cls");
+                            if (option == 'e') {
                                 break;
+                            } else if (option == 'd') {
+                                user.favorites_list_size--;
+                                deleteFilm(&favorites, favlst->film.name);
+                                favlst = deleteFromFilmList(favlst);
+                                User_list *cur = head;
+                                while (cur != NULL) {
+                                    int i = 0, ok = 1;
+                                    while (cur->user.login[i] != '\0') {
+                                        if (cur->user.login[i] != user.login[i]) {
+                                            ok = 0;
+                                            break;
+                                        }
+                                        i++;
+                                    }
+                                    if (ok) break;
+                                    cur = cur->next;
+                                }
+                                cur->user.favorites_list_size--;
+                                //if (user.favorites_list_size == 0) break;
                             }
-                            i++;
                         }
-                        if (ok) break;
-                        cur = cur->next;
+                    } else if (option == 'D') {
+                        user.favorites_list_size--;
+                        deleteFilm(&favorites, favlst->film.name);
+                        favlst = deleteFromFilmList(favlst);
+                        User_list *cur = head;
+                        while (cur != NULL) {
+                            int i = 0, ok = 1;
+                            while (cur->user.login[i] != '\0') {
+                                if (cur->user.login[i] != user.login[i]) {
+                                    ok = 0;
+                                    break;
+                                }
+                                i++;
+                            }
+                            if (ok) break;
+                            cur = cur->next;
+                        }
+                        cur->user.favorites_list_size--;
+                        //if (user.favorites_list_size == 0) break;
                     }
-                    cur->user.favorites_list_size--;
-                } else if (option == 'e') {
-                    break;
+                    if (user.favorites_list_size == 0) {
+                        printf("Your favorites list is empty. You will be redirected to catalog.");
+                        sleep(2);
+                        break;
+                    }
+                    if (option == 'e') {
+                        break;
+                    }
                 }
             }
         } else if (option == 'c') {
             while (1) {
+                system("cls");
                 printf("To exit profile settings type 'e'.\n");
                 printf("To change login/password/card number type 'l'/'p'/'c':\n");
                 scanf("\n%c", &option);
@@ -781,6 +862,7 @@ int main() {
         } else if (option == '@') {
             char tmp;
             scanf("%c", &tmp);
+            system("cls");
             Film film;
             printf("Adding new film");
             while (1) {
@@ -849,7 +931,7 @@ int main() {
             }
 
             lst = deleteFromFilmList(lst);
-            char size[2];
+            char size[3];
             FILE *f = fopen("..\\files\\films_list_size.txt", "r");
             fgets(size, 4, f);
             int len = strtol(size, (char*) NULL, 10) - 1;
@@ -859,6 +941,7 @@ int main() {
             fclose(f);
         } else if (option == 'f') {
             printf("Thanks for using our services.");
+            sleep(2);
             break;
         }
     }
